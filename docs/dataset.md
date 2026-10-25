@@ -26,7 +26,8 @@ Release 0.1 has three parts and the index tables (the full list, with checksums,
 
 The 20 Gulf of Mexico surveys are the ones whose volumes are all depth migrated, all marked `include = yes` in
 the index, all open in segyio with full geometry, and that have at least 40 exploration wells spudded after the
-survey year inside the survey outline. Together they hold 685 such wells. The rule is in
+survey year inside the survey outline. Together they hold 685 such wells. They lie in deep water in the
+central Gulf, between 92.6 and 88.0 W. The rule is in
 `tools/starter_release.py`.
 
 Sizes are decimal (1 GB = 10^9 bytes). Later releases add more NAMSS surveys and other open sources; files
