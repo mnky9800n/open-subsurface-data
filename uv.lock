@@ -1,0 +1,28 @@
+version = 1
+revision = 3
+requires-python = ">=3.10"
+
+[[package]]
+name = "open-subsurface-data"
+version = "0.1.0"
+source = { editable = "." }
+
+[package.optional-dependencies]
+deflate64 = [
+    { name = "zipfile-deflate64" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "zipfile-deflate64", marker = "extra == 'deflate64'", specifier = ">=0.2" }]
+provides-extras = ["deflate64"]
+
+[[package]]
+name = "zipfile-deflate64"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/03/1b/f397f821b48156ee94c5ca7ad82dc5cdb73cbcbc4377b9c1b21556f3ce8c/zipfile-deflate64-0.2.0.tar.gz", hash = "sha256:875a3299de102edf1c17f8cafcc528b1ca80b62dc4814b9cb56867ec59fbfd18", size = 62896, upload-time = "2022-01-05T09:24:39.575Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a8/24/472f4e44abefbec1c339d31e870df4ed022b01742c385a0a24f77020268e/zipfile_deflate64-0.2.0-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:5ed1c3edc08e8da8fe646b23105e2840f305ce2a75360aa0df7523c1263f43aa", size = 19167, upload-time = "2022-01-05T09:23:45.865Z" },
+    { url = "https://files.pythonhosted.org/packages/ca/74/849f94131522ddc7961a598b422aaa310ff0beb2f505497c98f0fbe395a6/zipfile_deflate64-0.2.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b1b4ab8d83bb277983ff273cbf4fcf831023abbc2303f90af9dd4bde3ab4b9c2", size = 43460, upload-time = "2022-01-05T09:24:33.415Z" },
+    { url = "https://files.pythonhosted.org/packages/24/7c/d6cfafa8a4d33936b666c897a981c49f264864d1941d8fa7f1da516cfa41/zipfile_deflate64-0.2.0-cp310-cp310-win_amd64.whl", hash = "sha256:f868343cd24bd3c66fbcba9316c6a970f934653bf3d0be89f25fa0335a7ea3ff", size = 20172, upload-time = "2022-01-05T09:25:06.889Z" },
+]

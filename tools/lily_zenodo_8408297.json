@@ -1,0 +1,176 @@
+{
+ "record": "https://zenodo.org/records/8408297",
+ "doi": "10.5281/zenodo.8408297",
+ "publication_date": "2023-10-06",
+ "read": "2026-10-22",
+ "files": [
+  {
+   "key": "1_RawDESC.zip",
+   "size": 20192926,
+   "checksum": "md5:c2e09e8e94f7cd6fbc22907444432e0e",
+   "url": "https://zenodo.org/records/8408297/files/1_RawDESC.zip?download=1"
+  },
+  {
+   "key": "2_CoreSUMM.zip",
+   "size": 2061249,
+   "checksum": "md5:c603456f3652672e77b1303cf7b528ca",
+   "url": "https://zenodo.org/records/8408297/files/2_CoreSUMM.zip?download=1"
+  },
+  {
+   "key": "3_RawDATA.zip",
+   "size": 628749583,
+   "checksum": "md5:88b2159a093d39e50f0753c145de2040",
+   "url": "https://zenodo.org/records/8408297/files/3_RawDATA.zip?download=1"
+  },
+  {
+   "key": "4_RawLITH.zip",
+   "size": 2209094,
+   "checksum": "md5:5296b3e0eb337f8323e2c46ea44078c7",
+   "url": "https://zenodo.org/records/8408297/files/4_RawLITH.zip?download=1"
+  },
+  {
+   "key": "5_CleanLITH.zip",
+   "size": 2276659,
+   "checksum": "md5:f3246e2ea51ccb32838f3d58a1dcbfb0",
+   "url": "https://zenodo.org/records/8408297/files/5_CleanLITH.zip?download=1"
+  },
+  {
+   "key": "AVS_DataLITH.csv",
+   "size": 676129,
+   "checksum": "md5:356b85ab05df27c4e8172a80ab4d26b8",
+   "url": "https://zenodo.org/records/8408297/files/AVS_DataLITH.csv?download=1"
+  },
+  {
+   "key": "CARB_DataLITH.csv",
+   "size": 3925154,
+   "checksum": "md5:b9af98f980beeb040eeb2f33bef85215",
+   "url": "https://zenodo.org/records/8408297/files/CARB_DataLITH.csv?download=1"
+  },
+  {
+   "key": "GE_DataLITH.csv",
+   "size": 3199434,
+   "checksum": "md5:cc3d693991c9196adb81000d9beaf578",
+   "url": "https://zenodo.org/records/8408297/files/GE_DataLITH.csv?download=1"
+  },
+  {
+   "key": "GRA_DataLITH.csv",
+   "size": 1197545177,
+   "checksum": "md5:a5e3a9d0b6bea210650b3622a42a5b5a",
+   "url": "https://zenodo.org/records/8408297/files/GRA_DataLITH.csv?download=1"
+  },
+  {
+   "key": "ICP_DataLITH.csv",
+   "size": 2485784,
+   "checksum": "md5:3642b5fa7bf1e7b2e741e2d90047cce4",
+   "url": "https://zenodo.org/records/8408297/files/ICP_DataLITH.csv?download=1"
+  },
+  {
+   "key": "IW_DataLITH.csv",
+   "size": 5452069,
+   "checksum": "md5:b27b8f44902dcb264b7130c40a1eb1c1",
+   "url": "https://zenodo.org/records/8408297/files/IW_DataLITH.csv?download=1"
+  },
+  {
+   "key": "JR6A_DataLITH.csv",
+   "size": 13318392,
+   "checksum": "md5:1bb8f91d9123a3c2312aed2836418a00",
+   "url": "https://zenodo.org/records/8408297/files/JR6A_DataLITH.csv?download=1"
+  },
+  {
+   "key": "KAPPA_DataLITH.csv",
+   "size": 685594,
+   "checksum": "md5:50f7014df4676cd4d7c74b8d684b65da",
+   "url": "https://zenodo.org/records/8408297/files/KAPPA_DataLITH.csv?download=1"
+  },
+  {
+   "key": "MAD_DataLITH.csv",
+   "size": 10193276,
+   "checksum": "md5:550230a25aef38a3c33451dc6379a013",
+   "url": "https://zenodo.org/records/8408297/files/MAD_DataLITH.csv?download=1"
+  },
+  {
+   "key": "MSP_DataLITH.csv",
+   "size": 872240993,
+   "checksum": "md5:dca36587d052991b23288584b38d0a0a",
+   "url": "https://zenodo.org/records/8408297/files/MSP_DataLITH.csv?download=1"
+  },
+  {
+   "key": "MS_DataLITH.csv",
+   "size": 1174780920,
+   "checksum": "md5:b3ae326830540167a2722911817e9490",
+   "url": "https://zenodo.org/records/8408297/files/MS_DataLITH.csv?download=1"
+  },
+  {
+   "key": "NGR_DataLITH.csv",
+   "size": 237171796,
+   "checksum": "md5:ccebefefec668a470bc9c4e4b312bbe3",
+   "url": "https://zenodo.org/records/8408297/files/NGR_DataLITH.csv?download=1"
+  },
+  {
+   "key": "PEN_DataLITH.csv",
+   "size": 867827,
+   "checksum": "md5:1a5aa3d9c0ffb3c3fdd6dacf29ee17e2",
+   "url": "https://zenodo.org/records/8408297/files/PEN_DataLITH.csv?download=1"
+  },
+  {
+   "key": "PWB_DataLITH.csv",
+   "size": 1459344,
+   "checksum": "md5:9dda1a22a813828704e2ef74306a89c8",
+   "url": "https://zenodo.org/records/8408297/files/PWB_DataLITH.csv?download=1"
+  },
+  {
+   "key": "PWC_DataLITH.csv",
+   "size": 9445474,
+   "checksum": "md5:56aa814ff122101be0ce2b7e744f79b7",
+   "url": "https://zenodo.org/records/8408297/files/PWC_DataLITH.csv?download=1"
+  },
+  {
+   "key": "PWL_DataLITH.csv",
+   "size": 411604183,
+   "checksum": "md5:89d6c783db4447c4516097c71e3f5394",
+   "url": "https://zenodo.org/records/8408297/files/PWL_DataLITH.csv?download=1"
+  },
+  {
+   "key": "RGB_DataLITH.csv",
+   "size": 3330716861,
+   "checksum": "md5:34a4565efdd6e3d54399f4588bafb64c",
+   "url": "https://zenodo.org/records/8408297/files/RGB_DataLITH.csv?download=1"
+  },
+  {
+   "key": "RSC_DataLITH.csv",
+   "size": 1253736529,
+   "checksum": "md5:9e3ee2cd14c9786e77771fe9858f1d22",
+   "url": "https://zenodo.org/records/8408297/files/RSC_DataLITH.csv?download=1"
+  },
+  {
+   "key": "SRA_DataLITH.csv",
+   "size": 37509,
+   "checksum": "md5:d315728b2267c0bc4238be5fd38ca35c",
+   "url": "https://zenodo.org/records/8408297/files/SRA_DataLITH.csv?download=1"
+  },
+  {
+   "key": "SRMD_DataLITH.csv",
+   "size": 25918417,
+   "checksum": "md5:f997fa2ff3148146be37789cc426e5ae",
+   "url": "https://zenodo.org/records/8408297/files/SRMD_DataLITH.csv?download=1"
+  },
+  {
+   "key": "SRM_DataLITH.csv",
+   "size": 2373154719,
+   "checksum": "md5:b6118f0f251b90957437ed1e46a17ffa",
+   "url": "https://zenodo.org/records/8408297/files/SRM_DataLITH.csv?download=1"
+  },
+  {
+   "key": "TCON_DataLITH.csv",
+   "size": 9865791,
+   "checksum": "md5:40ac7c346ff8cb378c472ba8a5830acd",
+   "url": "https://zenodo.org/records/8408297/files/TCON_DataLITH.csv?download=1"
+  },
+  {
+   "key": "TOR_DataLITH.csv",
+   "size": 199424,
+   "checksum": "md5:7a9c20a87e681f6f0a921f77a23a1825",
+   "url": "https://zenodo.org/records/8408297/files/TOR_DataLITH.csv?download=1"
+  }
+ ]
+}

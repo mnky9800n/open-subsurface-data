@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this index or tool, please cite it, and cite each data source you use (see data/sources.csv)."
+title: "Open Subsurface Data: an index of open 3D seismic and well data with a fetch tool"
+version: 0.1.0
+date-released: 2026-10-18
+license: MIT
+authors:
+  - family-names: Aiken
+    given-names: John M.
+    email: john@veleslabs.ai
+    affiliation: Veles Labs
+url: "https://veleslabs.ai"
