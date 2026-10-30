@@ -10,6 +10,8 @@ Inputs (all from public sources; nothing here comes from DISKOS):
             mirror: volumes.jsonl, volume_grids.json, well_volume_ties.csv, boem_frs_raw_logs.csv, files.csv
             (the mirror's log/files.csv)
   --gulf    the Gulf well work: explo_wells.csv, wells_namss.csv, manifest.tsv (downloads with SHA-256)
+The Zenodo file lists in tools/ (lily_zenodo_8408297.json, and zenodo_iodp.json and zenodo_logdb.json from
+zenodo_community.py) add the LILY, IODP and LogDB rows to files.csv.
 data/sources.csv is written by hand and is not touched here.
 """
 import argparse, collections, csv, glob, json, os, re
@@ -82,6 +84,40 @@ def lily_rows(sources):
     return [dict(file_id='lily:' + f['key'], source='lily', kind='cores', dataset=f['key'], url=f['url'], bytes=str(f['size']),
                  stable='yes', local_path='lily/' + f['key'], license=sources['lily']['license'], regions={'global'},
                  surveys=set(), include=set(), checksum=f['checksum']) for f in z['files']]
+
+
+LICENSE_TEXT = {'cc-by-4.0': 'CC BY 4.0', 'cc-zero': 'CC0 1.0', 'cc-by-sa-4.0': 'CC BY-SA 4.0', '': 'not stated'}
+LILY_CONCEPT_DOI = '10.5281/zenodo.8408296'   # every version of LILY; the lily source indexes version 8408297
+REPORT = re.compile(r'^Proceedings of the|^Initial Reports of the|Technical Note|Preliminary Report|Manual|Cruise Report|'
+                    r'Terminology|^A 3-year Snapshot|^Preserving Scientific')
+LWD = re.compile(r'\bLWD\b')
+
+
+def zenodo_rows(community, sid, prefix, seen):
+    """files.csv rows for a Zenodo community, from tools/zenodo_<community>.json (written by zenodo_community.py).
+    Sizes and md5 as Zenodo gives them; the license is each record's own. seen holds record ids already used, so a
+    record in two communities is indexed once. Kind: 'wells' for logs, 'reports' for the ODP and DSDP volumes,
+    technical notes and manuals, 'cores' for the rest (core, sample and shipboard data)."""
+    z = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), f'zenodo_{community}.json')))
+    rows, skipped = [], collections.Counter()
+    for r in z['records']:
+        if r['conceptdoi'] == LILY_CONCEPT_DOI:
+            skipped['a version of LILY, indexed under lily'] += 1
+            continue
+        if r['id'] in seen:
+            skipped['already indexed from another community'] += 1
+            continue
+        seen.add(r['id'])
+        kind = ('wells' if sid == 'ldeo-logdb' or LWD.search(r['title']) else
+                'reports' if REPORT.search(r['title']) else 'cores')
+        for f in r['files']:
+            rows.append(dict(file_id=f'{prefix}{r["id"]}/{f["key"]}', source=sid, kind=kind, dataset=r['title'], url=f['url'],
+                             bytes=str(f['size']), stable='yes', local_path=f'{sid}/{r["id"]}/{f["key"]}',
+                             license=LICENSE_TEXT[r['license']], regions={'global'}, surveys=set(), include=set(),
+                             checksum=f['checksum']))
+    for why, n in skipped.items():
+        print(f'zenodo {community}: left out {n} records ({why})')
+    return rows
 
 
 def main():
@@ -285,7 +321,9 @@ def main():
                    url='https://www.data.boem.gov/Other/Files/FRSWellDataRawData.zip', bytes='49336683', stable='no',
                    local_path='boem-data-center/FRSWellDataRawData.zip', license=sources['boem-data-center']['license'],
                    regions={'gulf-of-mexico', 'pacific', 'alaska', 'atlantic'}, surveys=set(), include=set(), checksum=''))
-    rows = list(archives.values()) + wf + lily_rows(sources)
+    seen = set()
+    rows = (list(archives.values()) + wf + lily_rows(sources) + zenodo_rows('logdb', 'ldeo-logdb', 'ldeo:zenodo/', seen)
+            + zenodo_rows('iodp', 'iodp-zenodo', 'iodp:', seen))
     for r in rows:
         r['regions'] = ';'.join(sorted(r['regions']))
         r['surveys'] = ';'.join(sorted(r['surveys']))
