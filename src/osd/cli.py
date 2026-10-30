@@ -5,6 +5,7 @@
     osd estimate [filters] --dest DIR   how much disk a selection needs, against the free space at DIR
     osd fetch    [filters] --dest DIR   download, resume, verify; optional --extract
     osd verify   --dest DIR             check files already fetched
+    osd cite     --dest DIR             BibTeX for this repository and the sources of the files at DIR
     osd frs plan / osd frs check        BOEM well logs, which need your own Login.gov account
 """
 import argparse
@@ -15,7 +16,7 @@ import os
 import shutil
 import sys
 
-from . import __version__, checks, frs, net
+from . import __version__, checks, cite, frs, net
 from .adapters import adapter
 from .index import Index, human, select, split
 
@@ -210,6 +211,7 @@ def cmd_fetch(a):
             bad += 1
     write_attribution(a.dest, ix, load_state(a.dest))
     write_manifest(a.dest, load_state(a.dest))
+    write_citation(a.dest, load_state(a.dest))
     log(f'done: {len(todo) - bad} verified, {bad} with problems. Log: {state_path(a.dest)}')
     return 1 if bad else 0
 
@@ -287,10 +289,25 @@ def write_manifest(dest, st):
             f.write(f'{d["file_id"]}\t{d["path"]}\t{d.get("bytes", "")}\t{d.get("sha256", "")}\t{d["url"]}\t{d["verified"]}\t{d.get("finished", "")}\n')
 
 
+def used_sources(st):
+    """Sources with verified files in a fetch log, and the last day files from each were fetched."""
+    accessed = {}
+    for d in st.values():
+        if d.get('verified'):
+            accessed[d['source']] = max(accessed.get(d['source'], ''), (d.get('finished') or '')[:10])
+    return set(accessed), accessed
+
+
+def write_citation(dest, st):
+    with open(os.path.join(dest, 'CITATION.bib'), 'w') as f:
+        f.write(cite.bibtex(*used_sources(st))[0])
+
+
 def write_attribution(dest, ix, st):
     used = sorted({d['source'] for d in st.values() if d.get('verified')})
     lines = ['# Sources and attribution', '', 'Files in this folder were fetched from these sources by open-subsurface-data.',
-             'Keep this note with any copy you pass on.', '']
+             'Keep this note with any copy you pass on. CITATION.bib has BibTeX for these sources and for',
+             'open-subsurface-data (or run: osd cite --dest <this folder>).', '']
     for s in used:
         src = ix.sources.get(s, {})
         lines += [f'## {src.get("name", s)}', '', f'- License or terms: {src.get("license", "")} ({src.get("license_url", "")})',
@@ -300,6 +317,30 @@ def write_attribution(dest, ix, st):
         lines.append('')
     with open(os.path.join(dest, 'ATTRIBUTION.md'), 'w') as f:
         f.write('\n'.join(lines))
+
+
+def cmd_cite(a):
+    sources, accessed = set(a.source or []), {}
+    if a.dest:
+        st = load_state(a.dest)
+        if not st:
+            print(f'no fetch log at {state_path(a.dest)}', file=sys.stderr)
+            return 1
+        used, accessed = used_sources(st)
+        sources |= used
+    text, missing = cite.bibtex(sources, accessed)
+    for s in missing:
+        print(f'no citation for source {s!r} (see: osd sources)', file=sys.stderr)
+    if not sources:
+        print('only this repository: add --dest DIR (a folder osd fetched into) or --source ids for the data you used',
+              file=sys.stderr)
+    if a.out:
+        with open(a.out, 'w') as f:
+            f.write(text)
+        print(f'wrote {a.out}: {text.count(chr(10) + "@") + 1} entries', file=sys.stderr)
+    else:
+        sys.stdout.write(text)
+    return 1 if missing else 0
 
 
 def cmd_frs(a):
@@ -334,6 +375,10 @@ def main(argv=None):
     p = sub.add_parser('verify', help='check files already fetched')
     p.add_argument('--dest', required=True)
     p.add_argument('--deep', action='store_true')
+    p = sub.add_parser('cite', help='BibTeX for this repository and the data sources you used')
+    p.add_argument('--dest', help='a folder osd fetched into: cite every source with verified files there')
+    p.add_argument('--source', type=csv_arg, help='source ids to cite as well, comma separated (see: osd sources)')
+    p.add_argument('--out', help='write to this file instead of standard output')
     p = sub.add_parser('frs', help='BOEM File Request System: plan and check well log requests')
     fs = p.add_subparsers(dest='frs_cmd', required=True)
     q = fs.add_parser('plan', help='write request lists of file IDs and the steps to submit them')
@@ -350,7 +395,8 @@ def main(argv=None):
     q.add_argument('--request', type=int, required=True)
     q.add_argument('paths', nargs='+')
     a = ap.parse_args(argv)
-    fn = dict(sources=cmd_sources, list=cmd_list, estimate=cmd_estimate, fetch=cmd_fetch, verify=cmd_verify, frs=cmd_frs)[a.cmd]
+    fn = dict(sources=cmd_sources, list=cmd_list, estimate=cmd_estimate, fetch=cmd_fetch, verify=cmd_verify, cite=cmd_cite,
+              frs=cmd_frs)[a.cmd]
     if a.cmd == 'estimate' and not hasattr(a, 'extract'):
         a.extract = False
     sys.exit(fn(a) or 0)

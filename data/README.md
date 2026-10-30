@@ -25,6 +25,12 @@ One row per source.
 | checked | Date the terms were read |
 | notes | Caveats |
 
+## citations.bib
+
+BibTeX, one or more entries per source. Each entry has an `osd_source` field with the source_id it belongs
+to; `osd cite` and `osd fetch` use it to pick the entries for the sources you used, and leave it out of the
+`.bib` file they write. Use the source's own suggested citation where it has one.
+
 ## files.csv
 
 One row per file the tool can download.

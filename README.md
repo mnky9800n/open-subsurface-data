@@ -62,8 +62,9 @@ Some SARIG zips use Deflate64. Run those with `uv run --extra deflate64 osd ...`
 | `osd sources` | Sources, access, license and how `osd` reaches each one. |
 | `osd list [filters]` | Files a selection would fetch. `--volumes` lists the seismic volumes instead. |
 | `osd estimate [filters] --dest DIR` | Download size, what is still missing at DIR, unpacked size with `--extract`, and whether it fits. |
-| `osd fetch [filters] --dest DIR` | Download, resume, verify; writes `MANIFEST.tsv` and `ATTRIBUTION.md` at DIR. |
+| `osd fetch [filters] --dest DIR` | Download, resume, verify; writes `MANIFEST.tsv`, `ATTRIBUTION.md` and `CITATION.bib` at DIR. |
 | `osd verify --dest DIR` | Check fetched files again. |
+| `osd cite --dest DIR` | BibTeX for this repository and every source with files at DIR. `--source` adds sources you got another way; `--out` writes a file. |
 | `osd frs plan --out DIR` | BOEM well logs: write lists of file IDs and the steps to request them. |
 | `osd frs check --plan DIR --request N ZIP` | Match what BOEM sent against a list. Read only. |
 
@@ -90,6 +91,7 @@ All in `data/`, CSV unless noted, UTF-8.
 | File | One row per | Main columns |
 |---|---|---|
 | `sources.csv` | source | access, fees, license, redistribution, credit line, DOI, how to get it |
+| `citations.bib` | BibTeX entry | one or more per source, linked by `osd_source`; read by `osd cite` |
 | `files.csv` | downloadable file | URL, bytes, checksum, regions, surveys, include, local path |
 | `seismic/volumes.csv` | 3D volume | survey, region, year, stack type, domain, role, include, flags, members, size, file |
 | `seismic/members.csv` | zip member | bytes, CRC32, SHA-256 where known, where the record came from |
@@ -122,7 +124,17 @@ The index is built from the corpus crawl (`seismic-corpus`), outputs from our re
 
 ## Citation
 
-Cite the index (DOI to come) and each source you use. NAMSS: Triezenberg, Hart and Childs (2016),
-https://doi.org/10.5066/F7930R7P.
+Cite this repository and each source you use. `osd cite` writes the BibTeX for both:
+
+    uv run osd cite --dest /data/osd --out references.bib        # the sources of everything fetched there
+    uv run osd cite --source boem-frs,lily                        # sources you got another way
+
+`osd fetch` also writes `CITATION.bib` next to the files. The entries come from `data/citations.bib`. Web
+sources without a DOI get the day you fetched them. `CITATION.cff` is an example citation for the repository
+alone. The Zenodo DOI is still to come.
+
+## Contributing
+
+To add a source or fix the index, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 Contact: John M. Aiken, Veles Labs, john@veleslabs.ai

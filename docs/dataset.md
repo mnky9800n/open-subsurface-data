@@ -191,7 +191,8 @@ NAMSS surveys were shot under BOEM permits and released after the 25-year propri
 
 Aiken, J. M. (2026). Open Subsurface Data, release 0.1. Veles Labs. (DOI to come.)
 
-Cite each source you use as well, with the credit line above.
+This is an example. Cite each source you use as well, with the credit line above. With the `osd` tool,
+`osd cite --source namss,sarig` writes BibTeX for this dataset and those sources.
 
 ## Contact
 

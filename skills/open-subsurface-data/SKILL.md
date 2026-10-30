@@ -25,7 +25,8 @@ changes a fetched file. Your job is to run it for the user, with their consent a
 - Never fetch from Diskos or any members-only source. They are listed for comparison only.
 - Do not edit files under the destination's `namss/`, `sarig/` and other source folders. They are the
   originals as fetched.
-- Tell the user each source's license and credit line. `osd fetch` writes them to `ATTRIBUTION.md`.
+- Tell the user each source's license and credit line. `osd fetch` writes them to `ATTRIBUTION.md`, and the
+  BibTeX to `CITATION.bib` (`osd cite --dest DIR` writes it again).
 
 ## 1. Set up
 
@@ -97,5 +98,5 @@ Tell the user, briefly:
 - what was fetched: files, bytes, sources, the destination;
 - what was verified, and any problem or changed-at-source note from the log (`<dest>/.osd/state.jsonl`);
 - what was skipped and why (account needed, listed-only source, not enough disk);
-- the licenses and credit lines (`<dest>/ATTRIBUTION.md`), and the NAMSS DOI 10.5066/F7930R7P for publications;
+- the licenses and credit lines (`<dest>/ATTRIBUTION.md`), and the BibTeX for publications (`<dest>/CITATION.bib`);
 - the next step, if any (another region, the BOEM requests, `--deep` verification).

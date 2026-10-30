@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use this index or tool, please cite it, and cite each data source you use (see data/sources.csv)."
-title: "Open Subsurface Data: an index of open 3D seismic and well data with a fetch tool"
+message: "This is an example citation for the repository alone. For the citations your work needs, run `osd cite --dest <folder osd fetched into>`: it writes BibTeX for this repository and for every data source you used."
+title: "Open Subsurface Data"
 version: 0.1.0
 date-released: 2026-10-18
 license: MIT
