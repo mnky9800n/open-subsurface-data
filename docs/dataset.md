@@ -1,34 +1,43 @@
 # Open Subsurface Data on AWS
 
-Open 3D post-stack seismic volumes from public archives, in one public S3 bucket, with the tables that say
-what each file is and how to read it.
+Open subsurface data from public archives in one public S3 bucket: 3D post-stack seismic volumes and
+scientific ocean drilling data, with the tables that say what each file is and how to read it.
 
-**Status (25 October 2026): not yet launched.** The bucket name, its region and the Registry of Open Data page
-are set at launch. Until then, `<bucket>` below stands for the bucket name.
+**Status (30 October 2026): not yet launched.** The bucket will be `veleslabs-open-subsurface-data` in
+us-west-2. It is created at launch, and the Registry of Open Data page goes up at the same time.
 
 ## What is in it
 
-We downloaded each survey from its source archive, checked every file against the CRC32 stored in the source
-zip, recorded its SHA-256 and unpacked it. The files are kept exactly as the sources shipped them: no format
-conversion, no edits, the same names and folders as inside the zip. Beside them we put what we learned while
-reading the headers, so that a user can open each volume correctly the first time.
-
-Release 0.1 has three parts and the index tables (the full list, with checksums, is
+Release 0.1 has five parts and the index tables (the full list, with checksums, is
 `metadata/releases/0.1/files.csv` in the bucket and [`docs/starter_release.csv`](starter_release.csv) here).
 
-| Part | Source | Surveys | SEG-Y files | Files | Size |
+| Part | Source | Surveys or records | SEG-Y files | Files | Size |
 |---|---|---:|---:|---:|---:|
 | `sarig-3d` | SARIG, South Australia: every 3D survey we hold | 117 | 117 | 709 | 583.2 GB |
 | `namss-pacific-alaska` | USGS NAMSS: every survey offshore southern California and in the Beaufort Sea | 19 | 20 | 278 | 24.6 GB |
 | `namss-gulf-psdm` | USGS NAMSS: 20 Gulf of Mexico surveys (see below) | 20 | 25 | 262 | 300.9 GB |
-| `index` | the index tables of this repository (`data/`) | | | 13 | 0.01 GB |
-| Total | | 156 | 162 | 1,262 | 908.7 GB |
+| `ldeo-logdb` | LDEO LogDB on Zenodo: downhole logs from DSDP, ODP and IODP holes, one record per hole | 712 | | 1,424 | 196.0 GB |
+| `iodp-zenodo` | the IODP community on Zenodo: expedition data from the JOIDES Resolution, ODP and DSDP Proceedings volumes, technical notes | 3,416 | | 18,022 | 2,815.8 GB |
+| `index` | the index tables of this repository (`data/`) | | | 14 | 0.01 GB |
+| Total | | 4,284 | 162 | 20,709 | 3,920.5 GB |
+
+**Seismic.** We downloaded each survey from its source archive, checked every file against the CRC32 stored in
+the source zip, recorded its SHA-256 and unpacked it. The files are kept exactly as the sources shipped them: no
+format conversion, no edits, the same names and folders as inside the zip. Beside them we put what we learned
+while reading the headers, so that a user can open each volume correctly the first time.
 
 The 20 Gulf of Mexico surveys are the ones whose volumes are all depth migrated, all marked `include = yes` in
 the index, all open in segyio with full geometry, and that have at least 40 exploration wells spudded after the
 survey year inside the survey outline. Together they hold 685 such wells. They lie in deep water in the
 central Gulf, between 92.6 and 88.0 W. The rule is in
 `tools/starter_release.py`.
+
+**Ocean drilling.** The two Zenodo parts are every file in the LogDB and IODP communities on Zenodo, as
+`data/files.csv` listed them on 30 October 2026. They are kept as deposited, under their Zenodo names, and
+checked against the MD5 that Zenodo publishes for each file. A LogDB record holds the logs of one hole as a zip
+(`<leg>-<hole>_logging_data.zip`) and a `readme.docx`. The IODP files are zips (11,543 of them), text files
+(3,349), HTML files (2,938) and 192 others (CSV, PDF, spreadsheets, video). Two records in the IODP community
+are not in the bucket: the LILY database, which the index lists under `lily`, and one restricted record.
 
 Sizes are decimal (1 GB = 10^9 bytes). Later releases add more NAMSS surveys and other open sources; files
 already in the bucket do not change.
@@ -37,15 +46,15 @@ already in the bucket do not change.
 
 The bucket allows anonymous reads. No AWS account is needed.
 
-    aws s3 ls --no-sign-request s3://<bucket>/
-    aws s3 ls --no-sign-request s3://<bucket>/data/original/source=namss/
-    aws s3 cp --no-sign-request s3://<bucket>/metadata/releases/0.1/files.csv .
+    aws s3 ls --no-sign-request s3://veleslabs-open-subsurface-data/
+    aws s3 ls --no-sign-request s3://veleslabs-open-subsurface-data/data/original/source=namss/
+    aws s3 cp --no-sign-request s3://veleslabs-open-subsurface-data/metadata/releases/0.1/files.csv .
 
 From Python, with `s3fs`:
 
     import s3fs
     fs = s3fs.S3FileSystem(anon=True)
-    fs.ls("<bucket>/data/original/source=sarig")
+    fs.ls("veleslabs-open-subsurface-data/data/original/source=sarig")
 
 If you compute on AWS, work in the bucket's region and read straight from S3. The tutorial notebook,
 [`notebooks/get-to-know-a-dataset.ipynb`](../notebooks/get-to-know-a-dataset.ipynb), lists the bucket, reads
@@ -56,26 +65,30 @@ the index, opens a SEG-Y volume with segyio and plots it.
 The layout follows the AWS onboarding handbook (Appendix A): a README at the top, `data/`, `metadata/` and
 `docs/` prefixes, one prefix per kind of data, and Hive-style `key=value` partitions.
 
-    s3://<bucket>/
+    s3://veleslabs-open-subsurface-data/
       README.txt                                   this document
       data/
         original/                                  the sources' files, byte for byte
           source=namss/survey=<survey_id>/<paths as inside the NAMSS zip>
           source=sarig/survey=<survey_id>/<paths as inside the SARIG zip>
+          source=ldeo-logdb/record=<record>/<files as named in the Zenodo record>
+          source=iodp-zenodo/record=<record>/<files as named in the Zenodo record>
       metadata/
         index/                                     the index tables (data/ in this repository)
         surveys/source=<source>/survey=<survey_id>/metadata.json
         releases/<release>/files.csv               every object in a release, with checksums
       docs/                                        documentation and the tutorial notebook
 
-Everything under `data/original/` came from a source archive. Everything under `metadata/` was written by us.
+Everything under `data/original/` came from a source archive or a Zenodo record. Everything under `metadata/`
+was written by us.
 A survey folder holds the SEG-Y volume (or volumes) and the side files that came in the same zip: processing
 reports (PDF), navigation (ESRI shapefiles, text), notes and images. Some side files have spaces in their names,
 as the source wrote them; quote the keys. Thirteen NAMSS surveys offshore California ship their navigation as
 a small zip inside the survey zip; those are kept as zips.
 
 Survey IDs are the sources' own: NAMSS IDs such as `B-55d-99-LA` (survey, year, area) and SARIG resource IDs
-such as `mesac681`.
+such as `mesac681`. Zenodo folders use the record number, which is also in the record's DOI
+(10.5281/zenodo.<record>).
 
 ## Formats
 
@@ -150,8 +163,10 @@ them. The index also lists data that are not in the bucket (the rest of NAMSS, t
 ### Release file list
 
 `metadata/releases/<release>/files.csv` has one row per object: `release`, `part`, `source`, `survey_id`,
-`region`, `kind` (`segy`, `side`, `metadata` or `index`), `corpus_path` (where the file sat in our copy),
-`s3_key`, `bytes`, `crc32` (from the source zip), `sha256`, `source_url` (the zip it came from) and `license`.
+`region`, `kind`, `corpus_path` (where the file sat in our copy), `s3_key`, `bytes`, `crc32` (from the source
+zip), `sha256`, `md5` (from Zenodo), `source_url` (the zip or Zenodo file it came from) and `license`. For the
+seismic, `kind` is `segy`, `side`, `metadata` or `index`; for the Zenodo parts it is `wells`, `cores` or
+`reports`, as in `data/files.csv`.
 Use it to select files by region or kind and to check what you downloaded.
 
 ## Checking files
@@ -161,7 +176,12 @@ release file list and in `metadata.json`. To check a download:
 
     shasum -a 256 <file>        # compare with sha256 in files.csv
 
-Anyone who downloads the same zip from the source and unpacks it gets the same bytes.
+The Zenodo files have the MD5 that Zenodo publishes instead:
+
+    md5sum <file>               # compare with md5 in files.csv (md5 -r on macOS)
+
+Anyone who downloads the same zip from the source and unpacks it, or the same file from Zenodo, gets the same
+bytes.
 
 ## Licenses and credit
 
@@ -171,6 +191,8 @@ Each file keeps its source's terms. From `data/sources.csv`:
 |---|---|---|
 | USGS NAMSS | Public domain ("no restrictions on usage or publication"); DataCite lists CC0 1.0 for the DOI | Triezenberg, P.J., Hart, P.E., and Childs, J.R., 2016, National Archive of Marine Seismic Surveys (NAMSS), U.S. Geological Survey data release, https://doi.org/10.5066/F7930R7P |
 | SARIG | CC BY 4.0 (CKAN license_id; the disclaimer file inside each zip says CC BY 3.0 AU) | Department for Energy and Mining, Government of South Australia (SARIG); keep the disclaimer file with redistributed copies |
+| LDEO LogDB on Zenodo | CC0 1.0 | LDEO Borehole Research Group, LogDB; each record has its own DOI |
+| IODP community on Zenodo | per record, as Zenodo states it: CC BY 4.0 (14,348 files), CC0 1.0 (3,662), CC BY-SA 4.0 (11), not stated (1); the `license` column of the release list gives it per file | International Ocean Discovery Program, with each record's own citation and DOI |
 
 The index tables and the per-survey metadata are CC BY 4.0 ([`data/LICENSE.md`](../data/LICENSE.md)). The
 NAMSS surveys were shot under BOEM permits and released after the 25-year proprietary term.
@@ -186,13 +208,15 @@ NAMSS surveys were shot under BOEM permits and released after the 25-year propri
 - Well positions in the volume grids cover only the volumes whose coordinates we could fit
   (`seismic/grids.csv`).
 - SARIG survey extents in `footprints.geojson` are the catalog's bounding boxes, and they are often coarse.
+- We checked the Zenodo files against their MD5 and did not open them. What a record holds is in its
+  description on Zenodo.
 
 ## Citation
 
 Aiken, J. M. (2026). Open Subsurface Data, release 0.1. Veles Labs. (DOI to come.)
 
 This is an example. Cite each source you use as well, with the credit line above. With the `osd` tool,
-`osd cite --source namss,sarig` writes BibTeX for this dataset and those sources.
+`osd cite --source namss,sarig,ldeo-logdb,iodp-zenodo` writes BibTeX for this dataset and those sources.
 
 ## Contact
 

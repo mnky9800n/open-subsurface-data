@@ -9,13 +9,14 @@ it. It also lists the scientific ocean drilling data on Zenodo: downhole logs fo
 holes from LDEO LogDB, and the IODP community's expedition data and reports. This repository holds the
 index, a few derived tables and the tool.
 
-We are also putting a checked copy of the seismic in one public S3 bucket, with the files exactly as the
-sources shipped them and a summary of each volume's headers beside them. That copy is not live yet. What it
-holds and how to read it: [`docs/dataset.md`](docs/dataset.md). A tutorial notebook:
+We are also putting a checked copy of the seismic and the Zenodo ocean drilling data in one public S3 bucket
+(`veleslabs-open-subsurface-data`, us-west-2), with the files exactly as the sources shipped them and a summary
+of each seismic volume's headers beside them. That copy is not live yet. What it holds and how to read it:
+[`docs/dataset.md`](docs/dataset.md). A tutorial notebook:
 [`notebooks/get-to-know-a-dataset.ipynb`](notebooks/get-to-know-a-dataset.ipynb). The list of files in the
 first release: [`docs/starter_release.csv`](docs/starter_release.csv).
 
-Status: index version 0.1.0, built 18 October 2026. The Zenodo DOI and the bucket address are still to come.
+Status: index version 0.1.0, built 18 October 2026. The Zenodo DOI is still to come.
 
 ## What is in the index
 

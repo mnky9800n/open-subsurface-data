@@ -2,17 +2,22 @@
 
     python3 tools/starter_release.py --corpus /mnt/nas/seismic-corpus
     python3 tools/starter_release.py --corpus <copy of log/ and the metadata.json files> --listing nas_files.tsv
+    python3 tools/starter_release.py --keep-seismic
 
 --corpus is the seismic corpus folder (<source>/<survey_id>/<files> + metadata.json, log/files.csv,
 log/jobs.jsonl). --listing is the output of `find sarig namss -type f -printf "%p\t%s\n"` run in the corpus
-folder; give it when the SEG-Y files are not on this machine. The script only reads.
+folder; give it when the SEG-Y files are not on this machine. --keep-seismic takes the seismic parts from the
+docs/starter_release.csv already written, so the surveys stay fixed and the corpus is not needed. The script only
+reads.
 
-The release holds three parts, chosen by rule:
+The release holds five parts, chosen by rule:
   sarig-3d               every SARIG 3D survey in the corpus whose archive was unpacked and checked
   namss-pacific-alaska   every NAMSS survey in the corpus from offshore California and the Beaufort Sea
   namss-gulf-psdm        NAMSS Gulf of Mexico surveys whose volumes are all include=yes, all depth migrated,
                          all opened by segyio with full geometry, and that have at least MIN_WELLS exploration
                          wells spudded after the survey year inside the survey outline
+  ldeo-logdb             every file of the LogDB community on Zenodo (one record per hole)
+  iodp-zenodo            every file of the IODP community on Zenodo, as listed in data/files.csv
 plus the index tables in data/. Files under data/original/ are the source's files, byte for byte. Everything
 we wrote (metadata.json, the index) goes under metadata/.
 """
@@ -25,8 +30,9 @@ RELEASE = '0.1'
 MIN_WELLS = 40
 SOURCE_ID = {'USGS NAMSS': 'namss', 'SARIG (South Australia)': 'sarig'}
 INDEX_LICENSE = 'CC BY 4.0 (index tables, see data/LICENSE.md)'
+ZENODO_PARTS = {'ldeo:zenodo/': 'ldeo-logdb', 'iodp:': 'iodp-zenodo'}
 COLUMNS = ['release', 'part', 'source', 'survey_id', 'region', 'kind', 'corpus_path', 's3_key', 'bytes', 'crc32',
-           'sha256', 'source_url', 'license']
+           'sha256', 'md5', 'source_url', 'license']
 
 
 def read_csv(path):
@@ -90,6 +96,21 @@ def gulf_psdm(corpus, surveys, region, n_wells):
     return keep
 
 
+def zenodo_rows():
+    """The Zenodo files in the index, one row each. local_path is <source>/<record>/<file name>."""
+    rows = []
+    for r in read_csv(os.path.join(DATA, 'files.csv')):
+        part = next((v for k, v in ZENODO_PARTS.items() if r['file_id'].startswith(k)), None)
+        if part is None:
+            continue
+        src, record, name = r['local_path'].split('/', 2)
+        rows.append(dict(part=part, source=src, survey_id='', region=r['regions'], kind=r['kind'],
+                         corpus_path=r['local_path'], s3_key=f'data/original/source={src}/record={record}/{name}',
+                         bytes=r['bytes'], md5=r['checksum'].removeprefix('md5:'), source_url=r['url'],
+                         license=r['license']))
+    return rows
+
+
 def sha256(path):
     h = hashlib.sha256()
     with open(path, 'rb') as f:
@@ -102,11 +123,53 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--corpus', default='/mnt/nas/seismic-corpus')
     ap.add_argument('--listing', help='find output (path TAB bytes) when the corpus files are not local')
+    ap.add_argument('--keep-seismic', action='store_true', help='reuse the seismic rows of the current release list')
     a = ap.parse_args()
 
-    sources = {r['source_id']: r for r in read_csv(os.path.join(DATA, 'sources.csv'))}
     volumes = read_csv(os.path.join(DATA, 'seismic', 'volumes.csv'))
     region = {v['survey_id']: v['region'] for v in volumes}
+    rows, problems = [], []
+    if a.keep_seismic:
+        rows = [r for r in read_csv(OUT) if r['part'] in ('sarig-3d', 'namss-pacific-alaska', 'namss-gulf-psdm')]
+    else:
+        rows = seismic_rows(a, volumes, region, problems)
+    rows += zenodo_rows()
+    for d, _, names in os.walk(DATA):
+        for n in sorted(names):
+            p = os.path.join(d, n)
+            rel = os.path.relpath(p, DATA)
+            rows.append(dict(part='index', source='', survey_id='', kind='index', corpus_path='',
+                             s3_key=f'metadata/index/{rel}', bytes=os.path.getsize(p), sha256=sha256(p),
+                             license=INDEX_LICENSE))
+    for r in rows:
+        r['release'] = RELEASE
+        r['region'] = r.get('region') or region.get(r['survey_id'], '')
+    rows.sort(key=lambda r: (r['part'] == 'index', r['part'], r['survey_id'], r['s3_key']))
+    keys = collections.Counter(r['s3_key'] for r in rows)
+    problems += [f'duplicate key {k}' for k, n in keys.items() if n > 1]
+    with open(OUT, 'w', newline='', encoding='utf-8') as f:
+        w = csv.DictWriter(f, COLUMNS)
+        w.writeheader()
+        w.writerows(rows)
+
+    by = collections.defaultdict(lambda: [set(), 0, 0])
+    for r in rows:
+        t = by[r['part']]
+        if r['part'] != 'index':
+            t[0].add(r['survey_id'] or r['s3_key'].split('/')[3])
+        t[1] += 1
+        t[2] += int(r['bytes'])
+    for part, (s, n, b) in by.items():
+        print(f'{part}: {len(s)} surveys or records, {n} files, {b / 1e9:.1f} GB')
+    print(f'total: {len(rows)} files, {sum(int(r["bytes"]) for r in rows) / 1e9:.1f} GB')
+    for p in problems:
+        print('note:', p)
+    print('wrote', OUT)
+
+
+def seismic_rows(a, volumes, region, problems):
+    """The three seismic parts, listed from the corpus."""
+    sources = {r['source_id']: r for r in read_csv(os.path.join(DATA, 'sources.csv'))}
     status = job_status(a.corpus)
     on_disk = listing(a.corpus, a.listing)
     logged = {}
@@ -126,7 +189,7 @@ def main():
         'namss-gulf-psdm': [('namss', s) for s in gulf_psdm(a.corpus, namss, region, n_wells)],
     }
 
-    rows, problems = [], []
+    rows = []
     for part, members in parts.items():
         for src, survey in members:
             prefix = f'{src}/{survey}/'
@@ -151,34 +214,7 @@ def main():
                                  s3_key=f'data/original/source={src}/survey={survey}/{rel}', bytes=on_disk[p],
                                  crc32=g['crc32'] if g else '', sha256=g['sha256'] if g else '',
                                  source_url=g['archive_url'] if g else '', license=lic))
-    for d, _, names in os.walk(DATA):
-        for n in sorted(names):
-            p = os.path.join(d, n)
-            rel = os.path.relpath(p, DATA)
-            rows.append(dict(part='index', source='', survey_id='', kind='index', corpus_path='',
-                             s3_key=f'metadata/index/{rel}', bytes=os.path.getsize(p), sha256=sha256(p),
-                             license=INDEX_LICENSE))
-    for r in rows:
-        r['release'] = RELEASE
-        r['region'] = region.get(r['survey_id'], '')
-    rows.sort(key=lambda r: (r['part'] == 'index', r['part'], r['survey_id'], r['s3_key']))
-    with open(OUT, 'w', newline='', encoding='utf-8') as f:
-        w = csv.DictWriter(f, COLUMNS)
-        w.writeheader()
-        w.writerows(rows)
-
-    by = collections.defaultdict(lambda: [set(), 0, 0])
-    for r in rows:
-        t = by[r['part']]
-        t[0].add(r['survey_id'])
-        t[1] += 1
-        t[2] += int(r['bytes'])
-    for part, (s, n, b) in by.items():
-        print(f'{part}: {len(s - {""})} surveys, {n} files, {b / 1e9:.1f} GB')
-    print(f'total: {len(rows)} files, {sum(int(r["bytes"]) for r in rows) / 1e9:.1f} GB')
-    for p in problems:
-        print('note:', p)
-    print('wrote', OUT)
+    return rows
 
 
 if __name__ == '__main__':
