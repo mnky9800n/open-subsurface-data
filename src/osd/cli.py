@@ -40,7 +40,7 @@ def add_filters(p):
     p.add_argument('--region', type=csv_arg, help='regions, comma separated (gulf-of-mexico, pacific, alaska, south-australia)')
     p.add_argument('--survey', type=csv_arg, help='survey ids, comma separated (overrides --include)')
     p.add_argument('--file', type=csv_arg, help='file ids from osd list, comma separated (overrides --include)')
-    p.add_argument('--kind', type=csv_arg, help='seismic, wells or cores')
+    p.add_argument('--kind', type=csv_arg, help='seismic, wells, cores or reports')
     p.add_argument('--include', type=csv_arg, default=['yes'],
                    help="seismic archives to keep by their volumes' include flag: yes (default), decide, all")
 

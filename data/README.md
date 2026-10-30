@@ -37,19 +37,19 @@ One row per file the tool can download.
 
 | Column | Meaning |
 |---|---|
-| file_id | Id used by `osd --file` (`namss:<survey>`, `sarig:<resource>/<name>`, `boem:<name>`, `edx:<name>`, `ldeo:<hole>/<name>`) |
+| file_id | Id used by `osd --file` (`namss:<survey>`, `sarig:<resource>/<name>`, `boem:<name>`, `edx:<name>`, `ldeo:<hole>/<name>`, `ldeo:zenodo/<record>/<name>`, `iodp:<record>/<name>`; `<record>` is the Zenodo record number) |
 | source | source_id |
-| kind | `seismic`, `wells` or `cores` (LILY) |
+| kind | `seismic`; `wells` (well files and downhole logs); `cores` (core, sample and shipboard data: LILY, IODP expedition data); `reports` (ODP and DSDP volumes, technical notes and manuals from the IODP community) |
 | dataset | Short description |
 | url | Direct download URL at the source |
 | bytes | Size at the source when indexed |
-| checksum | `etag:<ETag>` (NAMSS, checked against the server), `sha256:<hex>` (our download), `md5:<hex>` (as Zenodo gives it, LILY), `members:crc32` (each zip member's CRC32 is in `seismic/members.csv`), or empty |
+| checksum | `etag:<ETag>` (NAMSS, checked against the server), `sha256:<hex>` (our download), `md5:<hex>` (as Zenodo gives it: LILY, LogDB, IODP), `members:crc32` (each zip member's CRC32 is in `seismic/members.csv`), or empty |
 | stable | `no` when the source republishes the file under the same URL (BOEM tables) |
-| regions | `gulf-of-mexico`, `pacific`, `alaska`, `south-australia`, `atlantic` |
+| regions | `gulf-of-mexico`, `pacific`, `alaska`, `south-australia`, `atlantic`, `global` |
 | surveys | Survey ids the file holds |
 | include | Include flags of the volumes in the file |
 | local_path | Where `osd fetch` puts the file under `--dest` |
-| license | The source's license |
+| license | The source's license; for Zenodo records, the record's own |
 
 ## seismic/volumes.csv
 

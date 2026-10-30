@@ -5,7 +5,9 @@ An index of open subsurface data and a tool, `osd`, that fetches it from the ori
 The index covers 3D post-stack seismic volumes from the USGS National Archive of Marine Seismic Surveys
 (NAMSS) and from SARIG (South Australia), and Gulf of Mexico exploration wells tied to the NAMSS surveys:
 where each well sits, whether it found pay, how much the field holds, and which digital logs BOEM holds for
-it. This repository holds the index, a few derived tables and the tool.
+it. It also lists the scientific ocean drilling data on Zenodo: downhole logs for 712 DSDP, ODP and IODP
+holes from LDEO LogDB, and the IODP community's expedition data and reports. This repository holds the
+index, a few derived tables and the tool.
 
 We are also putting a checked copy of the seismic in one public S3 bucket, with the files exactly as the
 sources shipped them and a summary of each volume's headers beside them. That copy is not live yet. What it
@@ -17,7 +19,7 @@ Status: index version 0.1.0, built 18 October 2026. The Zenodo DOI and the bucke
 
 ## What is in the index
 
-<!-- counts: 18 October 2026 -->
+<!-- counts: 18 October 2026; the Zenodo rows 30 October 2026 -->
 | Part | Count | Size |
 |---|---:|---:|
 | NAMSS 3D volumes, include = yes / decide | 1,225 / 106 | 31.8 / 0.6 TB of SEG-Y; 19.8 TB of zips for the yes set |
@@ -30,6 +32,8 @@ Status: index version 0.1.0, built 18 October 2026. The Zenodo DOI and the bucke
 | ... placed inside the grid of a volume we hold | 1,943 wells (1,037 drilled after the survey, 239 discoveries) | |
 | BOEM digital log files for the 4,895 wells | 8,482 files, 348 GB (8,031 files and 33 GB under 100 MB each) | |
 | Gulf well tables, check-shots, paleo, sands atlas, open logs | 45 files | 0.2 GB |
+| Downhole logs from LDEO LogDB on Zenodo (DSDP, ODP, IODP) | 712 holes, 1,424 files | 196 GB |
+| IODP community on Zenodo: expedition data, ODP and DSDP volumes | 3,416 records, 18,022 files | 2.8 TB |
 | Other open sources listed (not yet per file) | NLOG, NOPIMS, WAPIMS, GEUS | about 35 TB of 3D by our counts |
 
 Run `uv run osd sources` for the current numbers.
@@ -114,13 +118,14 @@ migrations. NAMSS sizes per volume are rounded in the NAMSS catalog; archive siz
   little for a downloader.
 - Index tables (`data/`): CC BY 4.0, see `data/LICENSE.md`.
 - The data themselves keep their sources' terms: NAMSS public domain; SARIG CC BY 4.0; BOEM public
-  information; NETL EDX and LDEO per data set. `osd fetch` writes the credit lines to `ATTRIBUTION.md`.
+  information; NETL EDX and LDEO per data set; LogDB on Zenodo CC0;
+  the IODP records on Zenodo per record. `osd fetch` writes the credit lines to `ATTRIBUTION.md`.
 
 ## Rebuilding the index
 
 The index is built from the corpus crawl (`seismic-corpus`), outputs from our reference copy of the data
-(`tools/build_index_lambda.py`, `tools/frs_subset_lambda.py`) and the Gulf well work. See the docstring of
-`tools/build_index.py`. Nothing in the index comes from Diskos or any members-only repository.
+(`tools/build_index_lambda.py`, `tools/frs_subset_lambda.py`), the Gulf well work and the Zenodo file lists
+in `tools/` (`tools/zenodo_community.py` writes them). See the docstring of `tools/build_index.py`. Nothing in the index comes from Diskos or any members-only repository.
 
 ## Citation
 

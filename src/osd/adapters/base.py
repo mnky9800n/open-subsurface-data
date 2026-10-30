@@ -52,7 +52,7 @@ class SeismicZip(Adapter):
 
 
 class Direct(Adapter):
-    """Single files on a web server with a SHA-256 or MD5 in the index (BOEM tables, NETL EDX, LDEO, LILY)."""
+    """Single files on a web server with a SHA-256 or MD5 in the index (BOEM tables, NETL EDX, LDEO, LILY, IODP)."""
 
     def __init__(self, stable_note: str = ''):
         self.stable_note = stable_note

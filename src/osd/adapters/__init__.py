@@ -12,6 +12,7 @@ ADAPTERS = {
     'netl-edx': Direct(),
     'ldeo-logdb': Direct(),
     'lily': Direct(),
+    'iodp-zenodo': Direct(),
 }
 
 
